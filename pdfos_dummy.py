@@ -4,7 +4,7 @@ from pdfo import pdfo
 # Objective Function (non-linear)
 def objective(params):
     x, y = params
-    return (x - 3)**2 + (2 - y)**2
+    return (x - 3)**4 + (2 - y)**2
 
 # Linear Constraints
 def constraint1(params):
@@ -38,6 +38,7 @@ def run_pdfo_optimization():
     print(f"Optimal parameters: {result.x}")
     print(f"Optimal objective value: {result.fun}")
     return result
+
 
 # Execute the optimization
 if __name__ == "__main__":
