@@ -1,0 +1,31 @@
+trying to optimize strain and thrust (max thrust, min strain)
+
+constants, pressure anf density, Vin (initial velocity), pressure 
+
+presssure (height, temperature)
+density (heigth, temp)
+
+Vin is a constant
+
+rpm is a constahr too, 40k]
+
+]
+
+
+
+
+inputa
+- prop diameter, with RPM get cyclic airspeed
+- pitch
+
+
+output:
+- efficiency of thrust
+- strain on blade, yoeld stress for carbon fiberm, include ibti fcn as a penalty
+
+constrained vs unconstrained algorithms
+
+make a framework where we can experiment with different modeld
+
+yield stress for carbon fiber penalty
+
