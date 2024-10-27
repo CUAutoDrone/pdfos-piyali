@@ -657,4 +657,4 @@ def main_run(body_parameter_values):
   lift_coef, drag_coef = get_drag_lift_coeff(api_client_dict["simscale_client"], "SIMSCALE_API_KEY", api_client_dict["simulation_run_api"], project_id, simulation_id, run_id)
 
 
-  return lift_coef, drag_coef, dict(zip(feature_dict.keys(), body_parameter_values)), reference_area
+  return lift_coef, drag_coef, dict(zip(feature_dict.keys(), body_parameter_values)), reference_area, drone_airspeed
