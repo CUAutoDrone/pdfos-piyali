@@ -36,12 +36,10 @@ from onshape_client.client import Client
 
 
 # Setup api's for a run
-def setup_api_clints(simscale_api_key_env_name, onshape_access_key_env_name, onshape_secret_key_env_name, simscale_api_url="https://api.simscale.com", onshape_base_url="https://cuautodrone.onshape.com/"):
+def setup_api_clints(simscale_api_key_env_name, simscale_api_url="https://api.simscale.com"):
   
   # Check that the environment variables are set
   load_dotenv()
-  if not os.getenv(simscale_api_key_env_name) or not os.getenv(onshape_access_key_env_name) or not os.getenv(onshape_secret_key_env_name):
-      raise Exception("Either `SIMSCALE_API_KEY` or an `ONSHAPE_API_KEY` environment variable is missing.")
 
   # Simscale API client configuration
   simscale_api_key = os.getenv(simscale_api_key_env_name)
@@ -72,20 +70,18 @@ def setup_api_clints(simscale_api_key_env_name, onshape_access_key_env_name, ons
   reports_api = ReportsApi(simscale_api_client)
   materials_api = MaterialsApi(simscale_api_client)
 
-  # Onshape
-  onshape_api_base_url = onshape_base_url
-  onshape_access_key = os.getenv(onshape_access_key_env_name)
-  onshape_secrete_key = os.getenv(onshape_secret_key_env_name)
-
   # Onshape API Client
-  onshape_client = Client(configuration={"base_url":onshape_api_base_url,
-                               "access_key":onshape_access_key,
-                               "secret_key":onshape_secrete_key})
+  access_key = "m0gYBcdS7XDGVEN6P6ZOnCKV"
+  secret_key = "z7yhjr1vU2CCAUTdKv8iaElUW7Y6XqMXaIlLeP06SioI7Jms"
+  base = "https://cuautodrone.onshape.com/"
+  onshape_client = Client(configuration={"base_url":base,
+                                "access_key":access_key,
+                                "secret_key":secret_key})
   
   return {"simscale_client": simscale_api_client, "project_api":project_api, "storage_api":storage_api, "geometry_import_api":geometry_import_api,
           "geometry_api":geometry_api, "mesh_operation_api":mesh_operation_api, "simulation_api":simulation_api,
           "simulation_run_api":simulation_run_api, "reports_api":reports_api, "materials_api":materials_api,
-          "onshape_client":onshape_client}, simscale_api_url, onshape_api_base_url
+          "onshape_client":onshape_client}, simscale_api_url, base
 
 
 ##################################### ONSHAPE #################################################
@@ -93,18 +89,19 @@ def setup_api_clints(simscale_api_key_env_name, onshape_access_key_env_name, ons
 # Set Feature Values
 def set_feature_vals(onshape_api, onshape_api_base_url, feature_dict, did, wid, eid):
    
-   for feature_id in feature_dict.keys():
-      payload = feature_dict[feature_id]
-      fixed_url = "api/v9/partstudios/d/"+did+"/w/"+wid+"/e/"+eid+"/features/featureid/"+feature_id
-      final_url = onshape_api_base_url + fixed_url
-      method = 'POST'
-      params = {}
-      headers = {'Accept': 'application/json;charset=UTF-8; qs=0.09',
-           'Authorization': 'Basic CREDENTIALS',
-           'Content-Type': "application/json;charset=UTF-8; qs=0.09"}
+   for feature_id in list(feature_dict.keys()):
+        print(feature_id)
+        payload = feature_dict[feature_id]
+        fixed_url = "api/v9/partstudios/d/"+did+"/w/"+wid+"/e/"+eid+"/features/featureid/"+feature_id
+        final_url = onshape_api_base_url + fixed_url
+        method = 'POST'
+        params = {}
+        headers = {'Accept': 'application/json;charset=UTF-8; qs=0.09',
+            'Authorization': 'Basic CREDENTIALS',
+            'Content-Type': "application/json;charset=UTF-8; qs=0.09"}
 
-      _ = onshape_api.api_client.request(method, url=final_url, query_params=params, headers=headers,
-                                         body = payload)
+        _ = onshape_api.api_client.request(method, url=final_url, query_params=params, headers=headers,
+                                            body=payload)
 
 
 # Get Variables for measured stuff
@@ -334,7 +331,7 @@ def generate_model(simulation_api, simulation_spec_name, geometry_id, project_id
     ),
     boundary_conditions=boundary_conditions,
     simulation_control=FluidSimulationControl(
-        end_time=DimensionalTime(value=100, unit="s"),
+        end_time=DimensionalTime(value=200, unit="s"),
         delta_t=DimensionalTime(value=1, unit="s"),
         write_control=TimeStepWriteControl(write_interval=20),
         max_run_time=DimensionalTime(value=10000, unit="s"),
@@ -562,8 +559,7 @@ def get_drag_lift_coeff(simscale_api_client, simscale_api_key_env_name,
 
 def main_run(body_parameter_values):
    
-  api_client_dict, simscale_url, onshape_url = setup_api_clints("SIMSCALE_API_KEY", "ONSHAPE_ACCESS_KEY",
-                                                                 "ONSHAPE_SECRET_KEY")
+  api_client_dict, simscale_url, onshape_url = setup_api_clints("SIMSCALE_API_KEY")
    
 
 
@@ -580,10 +576,10 @@ def main_run(body_parameter_values):
   c4 = "Fwnh8qJNpq0GQaW_0"
 
   feature_dict = {
-     "c1" : payloads.return_payload_feature1_dict(c1, body_parameter_values[0]),
-     "c2" : payloads.return_payload_feature1_dict(c2, body_parameter_values[1]),
-     "c3" : payloads.return_payload_feature1_dict(c3, body_parameter_values[2]),
-     "c4" : payloads.return_payload_feature1_dict(c4, body_parameter_values[3])
+     c1 : payloads.return_payload_feature1_dict(c1, body_parameter_values[0]),
+     c2 : payloads.return_payload_feature2_dict(c2, body_parameter_values[1]),
+     c3 : payloads.return_payload_feature3_dict(c3, body_parameter_values[2]),
+     c4 : payloads.return_payload_feature4_dict(c4, body_parameter_values[3])
   }
 
   area_index_string = '"name" : "Xdiameter"'
@@ -657,4 +653,4 @@ def main_run(body_parameter_values):
   lift_coef, drag_coef = get_drag_lift_coeff(api_client_dict["simscale_client"], "SIMSCALE_API_KEY", api_client_dict["simulation_run_api"], project_id, simulation_id, run_id)
 
 
-  return lift_coef, drag_coef, dict(zip(feature_dict.keys(), body_parameter_values)), reference_area, drone_airspeed
+  return lift_coef, drag_coef, dict(zip(["c1", "c2", "c3", "c4"], body_parameter_values)), reference_area, drone_airspeed
